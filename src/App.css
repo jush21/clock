@@ -223,19 +223,24 @@
   gap: 10px;
 }
 
+.weather-desc {
+  font-size: 0.85rem;
+  color: #ffffff;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
 .temp {
   font-size: 1.8rem;
   font-weight: 900;
-  background: linear-gradient(135deg, #fff, #888);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  color: #ffffff;
 }
 
 .weather-details, .solar-times {
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: #aaa;
+  color: #ffffff;
 }
 
 .solar-times span { color: #fbbf24; }
@@ -254,12 +259,13 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -2px;
+  color: #ffffff;
 }
 
 .date-display {
   text-align: center;
   font-size: 1rem;
-  opacity: 0.6;
+  color: #ffffff;
 }
 
 /* Analog Clock CSS */
