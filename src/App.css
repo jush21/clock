@@ -87,8 +87,10 @@
 
 .temp {
   font-weight: 800;
-  color: #3b82f6;
   font-size: 0.9rem;
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .weather-desc {
@@ -100,16 +102,21 @@
 .time-display {
   font-size: 3.5rem;
   font-weight: 700;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
   margin: 0.5rem 0;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .date-display {
-  color: #666;
   font-size: 1rem;
   font-weight: 500;
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  opacity: 0.8;
 }
 
 .toggle-btn {
