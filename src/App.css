@@ -234,11 +234,32 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 28px;
   padding: 1.5rem;
-  transition: border-color 0.3s;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clock-card.day-theme {
+  background: linear-gradient(135deg, rgba(255, 220, 100, 0.15), rgba(255, 255, 255, 0.05));
+  border-color: rgba(255, 220, 100, 0.2);
+  box-shadow: 0 15px 35px rgba(255, 180, 0, 0.1);
+}
+
+.clock-card.night-theme {
+  background: linear-gradient(135deg, rgba(30, 60, 150, 0.2), rgba(0, 0, 0, 0.3));
+  border-color: rgba(60, 100, 255, 0.2);
+  box-shadow: 0 15px 35px rgba(0, 50, 255, 0.15);
 }
 
 .clock-card:hover {
+  transform: translateY(-8px);
   border-color: rgba(255, 255, 255, 0.3);
+}
+
+.clock-card.day-theme:hover {
+  border-color: rgba(255, 220, 100, 0.4);
+}
+
+.clock-card.night-theme:hover {
+  border-color: rgba(60, 100, 255, 0.4);
 }
 
 .card-top {
