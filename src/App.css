@@ -95,8 +95,11 @@
 
 .weather-desc {
   font-size: 0.8rem;
-  color: #888;
   text-transform: capitalize;
+  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 500;
 }
 
 .time-display {

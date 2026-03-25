@@ -72,6 +72,14 @@ function ClockCard({ city, is24Hour, now }: { city: CityConfig, is24Hour: boolea
     day: 'numeric',
   });
 
+  const getWeatherEmoji = (iconCode: string) => {
+    const mapping: Record<string, string> = {
+      '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
+      '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
+    };
+    return mapping[iconCode.substring(0, 2)] || '🌡️';
+  };
+
   return (
     <div className="clock-card">
       <div className="card-header">
@@ -81,7 +89,9 @@ function ClockCard({ city, is24Hour, now }: { city: CityConfig, is24Hour: boolea
           {weather && (
             <div className="weather-badge">
               <span className="temp">{weather.temp}°C</span>
-              <span className="weather-desc">{weather.description}</span>
+              <span className="weather-desc">
+                {getWeatherEmoji(weather.icon)} {weather.description}
+              </span>
             </div>
           )}
         </div>
