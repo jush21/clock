@@ -96,9 +96,13 @@
   background: transparent;
   border: none;
   padding: 0.6rem 1rem;
-  color: #fff;
+  color: #ffffff;
   font-size: 0.95rem;
   outline: none;
+}
+
+.search-modern input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .search-submit {
