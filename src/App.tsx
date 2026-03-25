@@ -137,9 +137,9 @@ function SortableClockCard(props: {
 
   const isDay = useMemo(() => {
     if (!weather) return true;
-    // Get the current UTC time in seconds, including the meeting planner offset
     const currentUtcSecs = (props.globalNow.getTime() + (props.globalNow.getTimezoneOffset() * 60000)) / 1000;
-    return currentUtcSecs >= weather.sunrise && currentUtcSecs <= weather.sunset;
+    // Exactly from sunrise up until sunset
+    return currentUtcSecs >= weather.sunrise && currentUtcSecs < weather.sunset;
   }, [props.globalNow, weather]);
 
   const timeString = localTime.toLocaleTimeString('en-US', {
