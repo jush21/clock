@@ -27,14 +27,14 @@
 
 .clock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
 }
 
 .clock-card {
   background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
-  padding: 2.5rem;
+  padding: 2rem;
   border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -50,23 +50,51 @@
 
 .card-header {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 16px;
   margin-bottom: 1.5rem;
 }
 
+.city-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .flag {
-  font-size: 2rem;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+  font-size: 2.5rem;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
 }
 
 .city-name {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #aaa;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
   margin: 0;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.15em;
+}
+
+.weather-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px 10px;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.temp {
+  font-weight: 800;
+  color: #3b82f6;
+  font-size: 0.9rem;
+}
+
+.weather-desc {
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: capitalize;
 }
 
 .time-display {
@@ -80,7 +108,7 @@
 
 .date-display {
   color: #666;
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 500;
 }
 
@@ -98,6 +126,22 @@
 .toggle-btn:hover {
   background: #fff;
   color: #000;
+}
+
+.api-warning {
+  margin-top: auto;
+  padding: 1rem;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 12px;
+  color: #f59e0b;
+  font-size: 0.9rem;
+}
+
+code {
+  background: rgba(0,0,0,0.3);
+  padding: 2px 6px;
+  border-radius: 4px;
 }
 
 @media (max-width: 640px) {
