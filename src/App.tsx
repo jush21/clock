@@ -41,10 +41,10 @@ interface WeatherData {
 }
 
 const DEFAULT_CITIES: CityConfig[] = [
-  { id: 'jerusalem', name: 'Jerusalem', country: 'IL', lat: 31.76, lon: 35.21, timezoneName: 'Asia/Jerusalem' },
-  { id: 'dc', name: 'Washington D.C.', country: 'US', lat: 38.89, lon: -77.03, timezoneName: 'America/New_York' },
-  { id: 'tehran', name: 'Tehran', country: 'IR', lat: 35.68, lon: 51.38, timezoneName: 'Asia/Tehran' },
-  { id: 'berlin', name: 'Berlin', country: 'DE', lat: 52.52, lon: 13.40, timezoneName: 'Europe/Berlin' },
+  { id: 'jerusalem-31-76-35-21', name: 'Jerusalem', country: 'IL', lat: 31.76, lon: 35.21, timezoneName: 'Asia/Jerusalem' },
+  { id: 'dc-38-89-neg77-03', name: 'Washington D.C.', country: 'US', lat: 38.89, lon: -77.03, timezoneName: 'America/New_York' },
+  { id: 'tehran-35-68-51-38', name: 'Tehran', country: 'IR', lat: 35.68, lon: 51.38, timezoneName: 'Asia/Tehran' },
+  { id: 'berlin-52-52-13-40', name: 'Berlin', country: 'DE', lat: 52.52, lon: 13.40, timezoneName: 'Europe/Berlin' },
 ];
 
 const API_KEY = '8451500d1564c7206559ef3c63548658';
@@ -225,8 +225,16 @@ function App() {
   const [is24Hour, setIs24Hour] = useState(false);
   const [isAnalog, setIsAnalog] = useState(false);
   const [watchlist, setWatchlist] = useState<CityConfig[]>(() => {
-    const saved = localStorage.getItem('world-clock-watchlist-v2');
-    return saved ? JSON.parse(saved) : DEFAULT_CITIES;
+    try {
+      const saved = localStorage.getItem('world-clock-watchlist-v2');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {
+      console.error('Failed to load watchlist from localStorage', e);
+    }
+    return DEFAULT_CITIES;
   });
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<CityConfig[]>([]);
@@ -250,7 +258,8 @@ function App() {
 
   const globalNow = useMemo(() => {
     const d = new Date(realTime);
-    d.setMinutes(d.getMinutes() + offsetMinutes);
+    const validOffset = isNaN(offsetMinutes) ? 0 : offsetMinutes;
+    d.setMinutes(d.getMinutes() + validOffset);
     return d;
   }, [realTime, offsetMinutes]);
 
@@ -268,7 +277,11 @@ function App() {
         lat: item.lat,
         lon: item.lon,
       })));
-    } catch (error) { console.error(error); } finally { setIsSearching(false); }
+    } catch (error) { 
+      console.error(error); 
+    } finally { 
+      setIsSearching(false); 
+    }
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -277,6 +290,7 @@ function App() {
       setWatchlist((items) => {
         const oldIndex = items.findIndex((i) => i.id === active.id);
         const newIndex = items.findIndex((i) => i.id === over.id);
+        if (oldIndex === -1 || newIndex === -1) return items;
         return arrayMove(items, oldIndex, newIndex);
       });
     }
@@ -349,7 +363,7 @@ function App() {
               <input 
                 type="range" min="-1440" max="1440" step="15" 
                 className="modern-range"
-                value={offsetMinutes} onChange={(e) => setOffsetMinutes(parseInt(e.target.value))} 
+                value={offsetMinutes} onChange={(e) => setOffsetMinutes(parseInt(e.target.value) || 0)} 
               />
               <button className="modern-reset" onClick={() => setOffsetMinutes(0)}>
                 Reset
@@ -359,30 +373,36 @@ function App() {
         </div>
       </header>
 
-      <DndContext 
-        sensors={sensors}
-        collisionDetection={closestCenter}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="clock-grid">
-          <SortableContext 
-            items={watchlist.map(c => c.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {watchlist.map((city) => (
-              <SortableClockCard 
-                key={city.id} 
-                city={city} 
-                is24Hour={is24Hour} 
-                isAnalog={isAnalog}
-                globalNow={globalNow} 
-                onRemove={() => setWatchlist(watchlist.filter(c => c.id !== city.id))}
-                onRename={(n) => updateNickname(city.id, n)}
-              />
-            ))}
-          </SortableContext>
+      {watchlist && watchlist.length > 0 ? (
+        <DndContext 
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <div className="clock-grid">
+            <SortableContext 
+              items={watchlist.map(c => c.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {watchlist.map((city) => (
+                <SortableClockCard 
+                  key={city.id} 
+                  city={city} 
+                  is24Hour={is24Hour} 
+                  isAnalog={isAnalog}
+                  globalNow={globalNow} 
+                  onRemove={() => setWatchlist(watchlist.filter(c => c.id !== city.id))}
+                  onRename={(n) => updateNickname(city.id, n)}
+                />
+              ))}
+            </SortableContext>
+          </div>
+        </DndContext>
+      ) : (
+        <div style={{ textAlign: 'center', padding: '2rem', opacity: 0.5 }}>
+          Your watchlist is empty. Search for a city to get started!
         </div>
-      </DndContext>
+      )}
     </main>
   );
 }
