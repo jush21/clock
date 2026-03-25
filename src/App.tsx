@@ -6,7 +6,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  DragEndEvent
+  type DragEndEvent
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -387,5 +387,4 @@ function App() {
   );
 }
 
-export default App
 export default App
