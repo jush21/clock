@@ -1,164 +1,319 @@
 .app-container {
-  max-width: 1200px;
+  max-width: 1400px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 1rem 2rem;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 1.5rem;
+  color: #fff;
 }
 
+/* Header & Scrubber */
 .app-header {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  padding: 1.5rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.header-top {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 1.5rem;
-}
-
-.app-header h1 {
-  font-size: 2.5rem;
-  margin: 0;
-  background: linear-gradient(135deg, #fff 0%, #888 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 800;
-}
-
-.clock-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 2rem;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.brand h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+}
+
+.toggles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.format-toggle {
+  background: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.time-scrubber {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.8rem 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+}
+
+.time-scrubber label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  min-width: 200px;
+  color: #4ade80;
+}
+
+.time-scrubber input[type="range"] {
+  flex: 1;
+  cursor: pointer;
+}
+
+.reset-btn {
+  background: #ff4b4b;
+  color: #fff;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+/* Search Box */
+.search-box {
+  position: relative;
+  display: flex;
+  gap: 0.5rem;
+  flex: 1;
+  max-width: 400px;
+}
+
+.search-box input {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 0.6rem 1rem;
+  border-radius: 10px;
+  color: #fff;
+}
+
+.search-results {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  z-index: 1000;
+}
+
+.search-item {
+  padding: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+}
+
+.search-item:hover { background: #222; }
+
+/* Clock Cards */
+.clock-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 1.5rem;
+}
+
 .clock-card {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  padding: 2rem;
-  border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  text-align: left;
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  overflow: hidden;
+}
+
+.day-theme {
+  background: linear-gradient(135deg, rgba(255, 200, 0, 0.1), rgba(255, 255, 255, 0.05));
+  box-shadow: 0 8px 32px rgba(255, 180, 0, 0.1);
+}
+
+.night-theme {
+  background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 0, 0, 0.3));
+  box-shadow: 0 8px 32px rgba(0, 50, 255, 0.15);
 }
 
 .clock-card:hover {
-  transform: translateY(-8px);
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.2);
-  box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+  transform: translateY(-5px);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-.card-header {
+.card-controls {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
   display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  margin-bottom: 1.5rem;
+  gap: 0.4rem;
 }
 
-.city-info {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.ctrl-btn, .remove-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: #fff;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-.flag {
-  font-size: 2.5rem;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
-}
+.remove-btn:hover { background: #ff4b4b; }
 
 .city-name {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #fff;
+  font-size: 1.2rem;
   margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.15em;
-}
-
-.weather-badge {
+  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+}
+
+.country-tag, .currency-tag {
+  font-size: 0.7rem;
+  padding: 2px 6px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.1);
-  padding: 4px 10px;
-  border-radius: 8px;
-  width: fit-content;
+  font-weight: 800;
+}
+
+.currency-tag { color: #4ade80; }
+
+.name-edit {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid #4ade80;
+  color: #fff;
+  font-size: 1.2rem;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* Weather UI */
+.weather-grid {
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.weather-badge.main {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
 
 .temp {
-  font-weight: 800;
-  font-size: 0.9rem;
-  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
+  font-size: 1.8rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff, #888);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
-.weather-desc {
-  font-size: 0.8rem;
-  text-transform: capitalize;
-  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-weight: 500;
+.weather-details, .solar-times {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.75rem;
+  color: #aaa;
+}
+
+.solar-times span { color: #fbbf24; }
+
+/* Visuals */
+.clock-visual {
+  height: 160px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 1rem 0;
 }
 
 .time-display {
   font-size: 3.5rem;
-  font-weight: 700;
-  margin: 0.5rem 0;
-  line-height: 1;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
-  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  letter-spacing: -2px;
 }
 
 .date-display {
+  text-align: center;
   font-size: 1rem;
-  font-weight: 500;
-  background: linear-gradient(135deg, #fff 0%, #a5a5a5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  opacity: 0.8;
+  opacity: 0.6;
 }
 
-.toggle-btn {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.6rem 1.2rem;
-  border-radius: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
+/* Analog Clock CSS */
+.analog-clock {
+  width: 140px;
+  height: 140px;
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
 }
 
-.toggle-btn:hover {
+.hand {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  transform-origin: bottom center;
+  border-radius: 10px;
+}
+
+.hour-hand {
+  width: 4px;
+  height: 35px;
   background: #fff;
-  color: #000;
+  z-index: 3;
 }
 
-.api-warning {
-  margin-top: auto;
-  padding: 1rem;
-  background: rgba(245, 158, 11, 0.1);
-  border: 1px solid rgba(245, 158, 11, 0.3);
-  border-radius: 12px;
-  color: #f59e0b;
-  font-size: 0.9rem;
+.minute-hand {
+  width: 3px;
+  height: 50px;
+  background: #aaa;
+  z-index: 2;
 }
 
-code {
-  background: rgba(0,0,0,0.3);
-  padding: 2px 6px;
-  border-radius: 4px;
+.second-hand {
+  width: 2px;
+  height: 55px;
+  background: #ff4b4b;
+  z-index: 1;
 }
 
-@media (max-width: 640px) {
-  .app-container {
-    padding: 2rem 1rem;
-  }
-  .time-display {
-    font-size: 2.8rem;
-  }
+.center-dot {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 4;
+}
+
+@media (max-width: 900px) {
+  .header-top { flex-direction: column; align-items: stretch; }
+  .time-scrubber { flex-direction: column; align-items: stretch; }
 }

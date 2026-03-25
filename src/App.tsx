@@ -1,131 +1,304 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import './App.css'
 
 interface CityConfig {
+  id: string;
   name: string;
-  timezone: string;
-  flag: string;
+  country: string;
   lat: number;
   lon: number;
+  timezoneName?: string;
+  nickname?: string;
 }
 
 interface WeatherData {
   temp: number;
+  feelsLike: number;
+  humidity: number;
+  windSpeed: number;
   description: string;
   icon: string;
+  timezoneOffset: number;
+  sunrise: number;
+  sunset: number;
 }
 
-const CITIES: CityConfig[] = [
-  { name: 'Jerusalem', timezone: 'Asia/Jerusalem', flag: '🇮🇱', lat: 31.76, lon: 35.21 },
-  { name: 'Washington D.C.', timezone: 'America/New_York', flag: '🇺🇸', lat: 38.89, lon: -77.03 },
-  { name: 'Tehran', timezone: 'Asia/Tehran', flag: '🇮🇷', lat: 35.68, lon: 51.38 },
-  { name: 'Berlin', timezone: 'Europe/Berlin', flag: '🇩🇪', lat: 52.52, lon: 13.40 },
+const DEFAULT_CITIES: CityConfig[] = [
+  { id: 'jerusalem', name: 'Jerusalem', country: 'IL', lat: 31.76, lon: 35.21, timezoneName: 'Asia/Jerusalem' },
+  { id: 'dc', name: 'Washington D.C.', country: 'US', lat: 38.89, lon: -77.03, timezoneName: 'America/New_York' },
+  { id: 'tehran', name: 'Tehran', country: 'IR', lat: 35.68, lon: 51.38, timezoneName: 'Asia/Tehran' },
+  { id: 'berlin', name: 'Berlin', country: 'DE', lat: 52.52, lon: 13.40, timezoneName: 'Europe/Berlin' },
 ];
 
-// NOTE: Replace this with your actual API key from OpenWeatherMap
 const API_KEY = '8451500d1564c7206559ef3c63548658';
 
-function ClockCard({ city, is24Hour, now }: { city: CityConfig, is24Hour: boolean, now: Date }) {
+const CURRENCY_MAP: Record<string, string> = {
+  'IL': 'ILS', 'US': 'USD', 'IR': 'IRR', 'DE': 'EUR', 'GB': 'GBP', 'JP': 'JPY', 'CN': 'CNY', 'CA': 'CAD', 'FR': 'EUR', 'IT': 'EUR', 'AU': 'AUD'
+};
+
+function AnalogClock({ date }: { date: Date }) {
+  const seconds = date.getSeconds();
+  const minutes = date.getMinutes();
+  const hours = date.getHours();
+
+  const secDeg = (seconds / 60) * 360;
+  const minDeg = ((minutes + seconds / 60) / 60) * 360;
+  const hourDeg = ((hours % 12 + minutes / 60) / 12) * 360;
+
+  return (
+    <div className="analog-clock">
+      <div className="hand hour-hand" style={{ transform: `rotate(${hourDeg}deg)` }} />
+      <div className="hand minute-hand" style={{ transform: `rotate(${minDeg}deg)` }} />
+      <div className="hand second-hand" style={{ transform: `rotate(${secDeg}deg)` }} />
+      <div className="center-dot" />
+    </div>
+  );
+}
+
+function ClockCard({ 
+  city, 
+  is24Hour, 
+  isAnalog,
+  globalNow, 
+  onRemove, 
+  onRename,
+  onMoveUp,
+  onMoveDown
+}: { 
+  city: CityConfig, 
+  is24Hour: boolean, 
+  isAnalog: boolean,
+  globalNow: Date, 
+  onRemove: () => void,
+  onRename: (newName: string) => void,
+  onMoveUp: () => void,
+  onMoveDown: () => void
+}) {
   const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [tempName, setTempName] = useState(city.nickname || city.name);
 
   useEffect(() => {
     const fetchWeather = async () => {
-      console.log(`Fetching weather for ${city.name}...`);
       try {
         const response = await fetch(
           `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
         );
-        if (!response.ok) {
-          const errorData = await response.json();
-          console.error(`Weather API Error (${city.name}):`, errorData);
-          return;
-        }
+        if (!response.ok) return;
         const data = await response.json();
-        console.log(`Weather data received for ${city.name}:`, data);
         setWeather({
           temp: Math.round(data.main.temp),
+          feelsLike: Math.round(data.main.feels_like),
+          humidity: data.main.humidity,
+          windSpeed: data.wind.speed,
           description: data.weather[0].description,
           icon: data.weather[0].icon,
+          timezoneOffset: data.timezone,
+          sunrise: data.sys.sunrise,
+          sunset: data.sys.sunset,
         });
       } catch (error) {
-        console.error(`Network Error fetching weather for ${city.name}:`, error);
+        console.error(`Weather fetch error for ${city.name}:`, error);
       }
     };
 
     fetchWeather();
-    const interval = setInterval(fetchWeather, 600000); // Update weather every 10 mins
+    const interval = setInterval(fetchWeather, 600000);
     return () => clearInterval(interval);
   }, [city]);
 
-  const timeString = now.toLocaleTimeString('en-US', {
-    timeZone: city.timezone,
+  const localTime = useMemo(() => {
+    const utcTime = globalNow.getTime() + (globalNow.getTimezoneOffset() * 60000);
+    const offset = weather?.timezoneOffset ?? 0;
+    return new Date(utcTime + (offset * 1000));
+  }, [globalNow, weather]);
+
+  const isDay = useMemo(() => {
+    if (!weather) return true;
+    const nowSecs = localTime.getTime() / 1000;
+    return nowSecs >= weather.sunrise && nowSecs <= weather.sunset;
+  }, [localTime, weather]);
+
+  const timeString = localTime.toLocaleTimeString('en-US', {
     hour12: !is24Hour,
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
   });
 
-  const dateString = now.toLocaleDateString('en-US', {
-    timeZone: city.timezone,
+  const dateString = localTime.toLocaleDateString('en-US', {
     weekday: 'short',
     month: 'short',
     day: 'numeric',
   });
 
-  const getWeatherEmoji = (iconCode: string) => {
-    const mapping: Record<string, string> = {
-      '01': '☀️', '02': '⛅', '03': '☁️', '04': '☁️',
-      '09': '🌧️', '10': '🌦️', '11': '⛈️', '13': '❄️', '50': '🌫️'
-    };
-    return mapping[iconCode.substring(0, 2)] || '🌡️';
+  const formatSolarTime = (timestamp: number) => {
+    return new Date(timestamp * 1000).toLocaleTimeString('en-US', {
+      hour: '2-digit', minute: '2-digit', hour12: true
+    });
   };
 
   return (
-    <div className="clock-card">
+    <div className={`clock-card ${isDay ? 'day-theme' : 'night-theme'}`}>
+      <div className="card-controls">
+        <button className="ctrl-btn" onClick={onMoveUp}>↑</button>
+        <button className="ctrl-btn" onClick={onMoveDown}>↓</button>
+        <button className="remove-btn" onClick={onRemove}>×</button>
+      </div>
+
       <div className="card-header">
-        <span className="flag">{city.flag}</span>
         <div className="city-info">
-          <h2 className="city-name">{city.name}</h2>
+          {isEditingName ? (
+            <input 
+              className="name-edit"
+              autoFocus
+              value={tempName}
+              onChange={(e) => setTempName(e.target.value)}
+              onBlur={() => { onRename(tempName); setIsEditingName(false); }}
+              onKeyDown={(e) => e.key === 'Enter' && (e.target as any).blur()}
+            />
+          ) : (
+            <h2 className="city-name" onClick={() => setIsEditingName(true)}>
+              {city.nickname || city.name} <span className="country-tag">{city.country}</span>
+              <span className="currency-tag">{CURRENCY_MAP[city.country] || ''}</span>
+            </h2>
+          )}
+          
           {weather && (
-            <div className="weather-badge">
-              <span className="temp">{weather.temp}°C</span>
-              <span className="weather-desc">
-                {getWeatherEmoji(weather.icon)} {weather.description}
-              </span>
+            <div className="weather-grid">
+              <div className="weather-badge main">
+                <span className="temp">{weather.temp}°C</span>
+                <span className="weather-desc">{isDay ? '☀️' : '🌙'} {weather.description}</span>
+              </div>
+              <div className="weather-details">
+                <span>Feels: {weather.feelsLike}°C</span>
+                <span>Hum: {weather.humidity}%</span>
+                <span>Wind: {weather.windSpeed}m/s</span>
+              </div>
+              <div className="solar-times">
+                <span>🌅 {formatSolarTime(weather.sunrise)}</span>
+                <span>🌇 {formatSolarTime(weather.sunset)}</span>
+              </div>
             </div>
           )}
         </div>
       </div>
-      <div className="time-display">{timeString}</div>
+
+      <div className="clock-visual">
+        {isAnalog ? <AnalogClock date={localTime} /> : <div className="time-display">{timeString}</div>}
+      </div>
       <div className="date-display">{dateString}</div>
     </div>
   );
 }
 
 function App() {
-  const [now, setNow] = useState(new Date());
+  const [realTime, setRealTime] = useState(new Date());
+  const [offsetMinutes, setOffsetMinutes] = useState(0);
   const [is24Hour, setIs24Hour] = useState(false);
+  const [isAnalog, setIsAnalog] = useState(false);
+  const [watchlist, setWatchlist] = useState<CityConfig[]>(() => {
+    const saved = localStorage.getItem('world-clock-watchlist-v2');
+    return saved ? JSON.parse(saved) : DEFAULT_CITIES;
+  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<CityConfig[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    const timer = setInterval(() => setNow(new Date()), 1000);
+    const timer = setInterval(() => setRealTime(new Date()), 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem('world-clock-watchlist-v2', JSON.stringify(watchlist));
+  }, [watchlist]);
+
+  const globalNow = useMemo(() => {
+    const d = new Date(realTime);
+    d.setMinutes(d.getMinutes() + offsetMinutes);
+    return d;
+  }, [realTime, offsetMinutes]);
+
+  const handleSearch = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    setIsSearching(true);
+    try {
+      const response = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${searchQuery}&limit=5&appid=${API_KEY}`);
+      const data = await response.json();
+      setSearchResults(data.map((item: any) => ({
+        id: `${item.lat}-${item.lon}`,
+        name: item.name,
+        country: item.country,
+        lat: item.lat,
+        lon: item.lon,
+      })));
+    } catch (error) { console.error(error); } finally { setIsSearching(false); }
+  };
+
+  const moveCity = (index: number, direction: 'up' | 'down') => {
+    const newWatchlist = [...watchlist];
+    const targetIndex = direction === 'up' ? index - 1 : index + 1;
+    if (targetIndex >= 0 && targetIndex < newWatchlist.length) {
+      [newWatchlist[index], newWatchlist[targetIndex]] = [newWatchlist[targetIndex], newWatchlist[index]];
+      setWatchlist(newWatchlist);
+    }
+  };
+
+  const updateNickname = (id: string, nickname: string) => {
+    setWatchlist(watchlist.map(c => c.id === id ? { ...c, nickname } : c));
+  };
 
   return (
     <main className="app-container">
       <header className="app-header">
-        <h1>World Clock & Weather</h1>
-        <button 
-          className="toggle-btn" 
-          onClick={() => setIs24Hour(!is24Hour)}
-        >
-          {is24Hour ? '12-Hour' : '24-Hour'}
-        </button>
+        <div className="header-top">
+          <div className="brand">
+            <h1>World Clock</h1>
+            <div className="toggles">
+              <button className="format-toggle" onClick={() => setIs24Hour(!is24Hour)}>{is24Hour ? '12h' : '24h'}</button>
+              <button className="format-toggle" onClick={() => setIsAnalog(!isAnalog)}>{isAnalog ? 'Digital' : 'Analog'}</button>
+            </div>
+          </div>
+          <form className="search-box" onSubmit={handleSearch}>
+            <input type="text" placeholder="Add city..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
+            <button type="submit">{isSearching ? '...' : '🔍'}</button>
+            {searchResults.length > 0 && (
+              <div className="search-results">
+                {searchResults.map(r => (
+                  <div key={r.id} className="search-item" onClick={() => { setWatchlist([...watchlist, r]); setSearchResults([]); setSearchQuery(''); }}>
+                    {r.name}, {r.country} <span>+</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </form>
+        </div>
+
+        <div className="time-scrubber">
+          <label>Meeting Planner: {offsetMinutes === 0 ? 'Live Time' : `${offsetMinutes > 0 ? '+' : ''}${Math.round(offsetMinutes/60)}h ${Math.abs(offsetMinutes%60)}m`}</label>
+          <input 
+            type="range" min="-1440" max="1440" step="15" 
+            value={offsetMinutes} onChange={(e) => setOffsetMinutes(parseInt(e.target.value))} 
+          />
+          <button className="reset-btn" onClick={() => setOffsetMinutes(0)}>Reset to Live</button>
+        </div>
       </header>
-      
+
       <div className="clock-grid">
-        {CITIES.map(city => (
-          <ClockCard key={city.name} city={city} is24Hour={is24Hour} now={now} />
+        {watchlist.map((city, index) => (
+          <ClockCard 
+            key={city.id} 
+            city={city} 
+            is24Hour={is24Hour} 
+            isAnalog={isAnalog}
+            globalNow={globalNow} 
+            onRemove={() => setWatchlist(watchlist.filter(c => c.id !== city.id))}
+            onRename={(n) => updateNickname(city.id, n)}
+            onMoveUp={() => moveCity(index, 'up')}
+            onMoveDown={() => moveCity(index, 'down')}
+          />
         ))}
       </div>
     </main>
