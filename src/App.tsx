@@ -363,7 +363,9 @@ function App() {
               <input 
                 type="range" min="-1440" max="1440" step="15" 
                 className="modern-range"
-                value={offsetMinutes} onChange={(e) => setOffsetMinutes(parseInt(e.target.value) || 0)} 
+                value={offsetMinutes} 
+                onChange={(e) => setOffsetMinutes(parseInt(e.target.value) || 0)} 
+                onDoubleClick={() => setOffsetMinutes(0)}
               />
               <button className="modern-reset" onClick={() => setOffsetMinutes(0)}>
                 Reset
