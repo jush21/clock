@@ -238,15 +238,15 @@
 }
 
 .clock-card.day-theme {
-  background: linear-gradient(135deg, rgba(255, 220, 100, 0.15), rgba(255, 255, 255, 0.05));
-  border-color: rgba(255, 220, 100, 0.2);
-  box-shadow: 0 15px 35px rgba(255, 180, 0, 0.1);
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.25), rgba(255, 255, 255, 0.1));
+  border-color: rgba(59, 130, 246, 0.4);
+  box-shadow: 0 15px 35px rgba(59, 130, 246, 0.15);
 }
 
 .clock-card.night-theme {
-  background: linear-gradient(135deg, rgba(30, 60, 150, 0.2), rgba(0, 0, 0, 0.3));
-  border-color: rgba(60, 100, 255, 0.2);
-  box-shadow: 0 15px 35px rgba(0, 50, 255, 0.15);
+  background: linear-gradient(135deg, rgba(30, 58, 138, 0.45), rgba(0, 0, 0, 0.4));
+  border-color: rgba(59, 130, 246, 0.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
 }
 
 .clock-card:hover {
