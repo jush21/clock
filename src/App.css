@@ -1,24 +1,30 @@
 .app-container {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 2rem;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
   color: #fff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-/* Header & Scrubber */
+/* Modern Header */
 .app-header {
-  background: rgba(0, 0, 0, 0.4);
+  width: 100%;
+}
+
+.header-glass {
+  background: rgba(255, 255, 255, 0.05);
   backdrop-filter: blur(20px);
-  padding: 1.5rem;
-  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 32px;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .header-top {
@@ -28,226 +34,292 @@
   gap: 2rem;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
+.brand-modern h1 {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  letter-spacing: -1px;
 }
 
-.brand h1 {
-  font-size: 1.8rem;
-  margin: 0;
-  background: linear-gradient(135deg, #fff 0%, #aaa 100%);
+.brand-modern h1 span {
+  background: linear-gradient(135deg, #4ade80, #3b82f6);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  font-weight: 900;
 }
 
-.toggles {
+.toggles-modern {
   display: flex;
   gap: 0.5rem;
+  margin-top: 0.5rem;
 }
 
-.format-toggle {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  padding: 0.4rem 0.8rem;
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.time-scrubber {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 0.8rem 1.2rem;
+.toggle-modern-btn {
   background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #aaa;
+  padding: 0.4rem 0.8rem;
   border-radius: 12px;
-}
-
-.time-scrubber label {
-  font-size: 0.9rem;
-  font-weight: 600;
-  min-width: 200px;
-  color: #4ade80;
-}
-
-.time-scrubber input[type="range"] {
-  flex: 1;
-  cursor: pointer;
-}
-
-.reset-btn {
-  background: #ff4b4b;
-  color: #fff;
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: 6px;
   font-size: 0.8rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
-/* Search Box */
-.search-box {
-  position: relative;
-  display: flex;
-  gap: 0.5rem;
+.toggle-modern-btn.active {
+  background: #fff;
+  color: #000;
+  border-color: #fff;
+}
+
+/* Modern Search */
+.search-modern {
   flex: 1;
   max-width: 400px;
+  position: relative;
 }
 
-.search-box input {
-  flex: 1;
-  background: rgba(255, 255, 255, 0.1);
+.search-input-wrapper {
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  padding: 0.6rem 1rem;
-  border-radius: 10px;
-  color: #fff;
+  border-radius: 16px;
+  padding: 0.2rem;
+  transition: border-color 0.2s;
 }
 
-.search-results {
+.search-input-wrapper:focus-within {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.search-modern input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  padding: 0.6rem 1rem;
+  color: #fff;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.search-submit {
+  background: #3b82f6;
+  border: none;
+  color: #fff;
+  width: 36px;
+  height: 36px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-results-modern {
   position: absolute;
   top: 110%;
   left: 0;
   right: 0;
-  background: #111;
+  background: #1a1a1a;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 10px;
-  z-index: 1000;
+  border-radius: 16px;
+  overflow: hidden;
+  z-index: 100;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
-.search-item {
-  padding: 0.8rem;
-  cursor: pointer;
+.search-result-item {
+  padding: 0.8rem 1.2rem;
   display: flex;
   justify-content: space-between;
+  cursor: pointer;
+  transition: background 0.2s;
 }
 
-.search-item:hover { background: #222; }
+.search-result-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
 
-/* Clock Cards */
+.add-plus {
+  color: #4ade80;
+  font-weight: bold;
+}
+
+/* Modern Scrubber */
+.scrubber-modern {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  padding: 1.2rem;
+}
+
+.scrubber-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+}
+
+.scrubber-label {
+  font-weight: 600;
+  color: #4ade80;
+  font-size: 0.9rem;
+}
+
+.scrubber-value {
+  font-family: ui-monospace, monospace;
+  font-weight: 700;
+  color: #fff;
+}
+
+.scrubber-controls {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.modern-range {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+}
+
+.modern-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+}
+
+.modern-reset {
+  background: #ff4b4b;
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.modern-reset:active {
+  transform: scale(0.95);
+}
+
+/* Modern Clock Cards */
 .clock-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
 .clock-card {
   position: relative;
-  padding: 1.5rem;
-  border-radius: 28px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  overflow: hidden;
-}
-
-.day-theme {
-  background: linear-gradient(135deg, rgba(255, 200, 0, 0.1), rgba(255, 255, 255, 0.05));
-  box-shadow: 0 8px 32px rgba(255, 180, 0, 0.1);
-}
-
-.night-theme {
-  background: linear-gradient(135deg, rgba(0, 100, 255, 0.1), rgba(0, 0, 0, 0.3));
-  box-shadow: 0 8px 32px rgba(0, 50, 255, 0.15);
+  border-radius: 28px;
+  padding: 1.5rem;
+  transition: border-color 0.3s;
 }
 
 .clock-card:hover {
-  transform: translateY(-5px);
   border-color: rgba(255, 255, 255, 0.3);
 }
 
-.card-controls {
-  position: absolute;
-  top: 1rem;
-  right: 1rem;
+.card-top {
   display: flex;
-  gap: 0.4rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 }
 
-.ctrl-btn, .remove-btn {
-  background: rgba(255, 255, 255, 0.1);
+.drag-handle {
+  color: rgba(255, 255, 255, 0.2);
+  cursor: grab;
+  font-size: 1.2rem;
+  padding: 0.2rem;
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.remove-btn {
+  background: none;
   border: none;
-  color: #fff;
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.4rem;
   cursor: pointer;
-  font-weight: bold;
+  line-height: 1;
 }
 
-.remove-btn:hover { background: #ff4b4b; }
+.remove-btn:hover {
+  color: #ff4b4b;
+}
 
 .city-name {
   font-size: 1.2rem;
+  font-weight: 700;
   margin: 0;
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
 }
 
-.country-tag, .currency-tag {
+.country-tag {
   font-size: 0.7rem;
+  background: rgba(255, 255, 255, 0.1);
   padding: 2px 6px;
   border-radius: 4px;
-  background: rgba(255, 255, 255, 0.1);
+  margin-left: 8px;
+}
+
+.currency-tag {
+  font-size: 0.7rem;
+  color: #4ade80;
+  margin-left: 8px;
   font-weight: 800;
 }
 
-.currency-tag { color: #4ade80; }
-
-.name-edit {
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid #4ade80;
-  color: #fff;
-  font-size: 1.2rem;
-  border-radius: 4px;
-  padding: 2px 6px;
-}
-
-/* Weather UI */
 .weather-grid {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 0.8rem;
+  gap: 0.5rem;
 }
 
 .weather-badge.main {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 10px;
-}
-
-.weather-desc {
-  font-size: 0.85rem;
-  color: #ffffff;
-  font-weight: 500;
-  text-transform: capitalize;
 }
 
 .temp {
   font-size: 1.8rem;
   font-weight: 900;
-  color: #ffffff;
+}
+
+.weather-desc {
+  font-size: 0.85rem;
+  color: #aaa;
+  text-transform: capitalize;
 }
 
 .weather-details, .solar-times {
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: #ffffff;
+  color: rgba(255, 255, 255, 0.5);
 }
 
-.solar-times span { color: #fbbf24; }
+.solar-times span {
+  color: #fbbf24;
+}
 
-/* Visuals */
 .clock-visual {
-  height: 160px;
+  height: 140px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -259,23 +331,21 @@
   font-weight: 800;
   font-variant-numeric: tabular-nums;
   letter-spacing: -2px;
-  color: #ffffff;
 }
 
 .date-display {
   text-align: center;
-  font-size: 1rem;
-  color: #ffffff;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.6);
 }
 
-/* Analog Clock CSS */
+/* Analog Clock */
 .analog-clock {
-  width: 140px;
-  height: 140px;
-  border: 3px solid rgba(255, 255, 255, 0.2);
+  width: 130px;
+  height: 130px;
+  border: 2px solid rgba(255, 255, 255, 0.15);
   border-radius: 50%;
   position: relative;
-  background: rgba(255, 255, 255, 0.03);
 }
 
 .hand {
@@ -283,30 +353,12 @@
   bottom: 50%;
   left: 50%;
   transform-origin: bottom center;
-  border-radius: 10px;
+  border-radius: 4px;
 }
 
-.hour-hand {
-  width: 4px;
-  height: 35px;
-  background: #fff;
-  z-index: 3;
-}
-
-.minute-hand {
-  width: 3px;
-  height: 50px;
-  background: #aaa;
-  z-index: 2;
-}
-
-.second-hand {
-  width: 2px;
-  height: 55px;
-  background: #ff4b4b;
-  z-index: 1;
-}
-
+.hour-hand { width: 4px; height: 30px; background: #fff; z-index: 3; }
+.minute-hand { width: 3px; height: 45px; background: #aaa; z-index: 2; }
+.second-hand { width: 2px; height: 50px; background: #ff4b4b; z-index: 1; }
 .center-dot {
   position: absolute;
   top: 50%;
@@ -319,7 +371,16 @@
   z-index: 4;
 }
 
-@media (max-width: 900px) {
-  .header-top { flex-direction: column; align-items: stretch; }
-  .time-scrubber { flex-direction: column; align-items: stretch; }
+@media (max-width: 768px) {
+  .header-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .search-modern {
+    max-width: none;
+  }
+  .scrubber-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }

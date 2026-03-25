@@ -1,4 +1,21 @@
 import { useState, useEffect, useMemo } from 'react'
+import {
+  DndContext, 
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+  useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import './App.css'
 
 interface CityConfig {
@@ -55,34 +72,39 @@ function AnalogClock({ date }: { date: Date }) {
   );
 }
 
-function ClockCard({ 
-  city, 
-  is24Hour, 
-  isAnalog,
-  globalNow, 
-  onRemove, 
-  onRename,
-  onMoveUp,
-  onMoveDown
-}: { 
+function SortableClockCard(props: { 
   city: CityConfig, 
   is24Hour: boolean, 
   isAnalog: boolean,
   globalNow: Date, 
   onRemove: () => void,
   onRename: (newName: string) => void,
-  onMoveUp: () => void,
-  onMoveDown: () => void
 }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id: props.city.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 10 : 1,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
   const [weather, setWeather] = useState<WeatherData | null>(null);
   const [isEditingName, setIsEditingName] = useState(false);
-  const [tempName, setTempName] = useState(city.nickname || city.name);
+  const [tempName, setTempName] = useState(props.city.nickname || props.city.name);
 
   useEffect(() => {
     const fetchWeather = async () => {
       try {
         const response = await fetch(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${city.lat}&lon=${city.lon}&appid=${API_KEY}&units=metric`
+          `https://api.openweathermap.org/data/2.5/weather?lat=${props.city.lat}&lon=${props.city.lon}&appid=${API_KEY}&units=metric`
         );
         if (!response.ok) return;
         const data = await response.json();
@@ -98,20 +120,20 @@ function ClockCard({
           sunset: data.sys.sunset,
         });
       } catch (error) {
-        console.error(`Weather fetch error for ${city.name}:`, error);
+        console.error(`Weather fetch error for ${props.city.name}:`, error);
       }
     };
 
     fetchWeather();
     const interval = setInterval(fetchWeather, 600000);
     return () => clearInterval(interval);
-  }, [city]);
+  }, [props.city]);
 
   const localTime = useMemo(() => {
-    const utcTime = globalNow.getTime() + (globalNow.getTimezoneOffset() * 60000);
+    const utcTime = props.globalNow.getTime() + (props.globalNow.getTimezoneOffset() * 60000);
     const offset = weather?.timezoneOffset ?? 0;
     return new Date(utcTime + (offset * 1000));
-  }, [globalNow, weather]);
+  }, [props.globalNow, weather]);
 
   const isDay = useMemo(() => {
     if (!weather) return true;
@@ -120,7 +142,7 @@ function ClockCard({
   }, [localTime, weather]);
 
   const timeString = localTime.toLocaleTimeString('en-US', {
-    hour12: !is24Hour,
+    hour12: !props.is24Hour,
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit',
@@ -139,11 +161,16 @@ function ClockCard({
   };
 
   return (
-    <div className={`clock-card ${isDay ? 'day-theme' : 'night-theme'}`}>
-      <div className="card-controls">
-        <button className="ctrl-btn" onClick={onMoveUp}>↑</button>
-        <button className="ctrl-btn" onClick={onMoveDown}>↓</button>
-        <button className="remove-btn" onClick={onRemove}>×</button>
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      className={`clock-card ${isDay ? 'day-theme' : 'night-theme'}`}
+    >
+      <div className="card-top">
+        <div className="drag-handle" {...attributes} {...listeners}>
+          ⠿
+        </div>
+        <button className="remove-btn" onClick={props.onRemove}>×</button>
       </div>
 
       <div className="card-header">
@@ -154,13 +181,13 @@ function ClockCard({
               autoFocus
               value={tempName}
               onChange={(e) => setTempName(e.target.value)}
-              onBlur={() => { onRename(tempName); setIsEditingName(false); }}
+              onBlur={() => { props.onRename(tempName); setIsEditingName(false); }}
               onKeyDown={(e) => e.key === 'Enter' && (e.target as any).blur()}
             />
           ) : (
             <h2 className="city-name" onClick={() => setIsEditingName(true)}>
-              {city.nickname || city.name} <span className="country-tag">{city.country}</span>
-              <span className="currency-tag">{CURRENCY_MAP[city.country] || ''}</span>
+              {props.city.nickname || props.city.name} <span className="country-tag">{props.city.country}</span>
+              <span className="currency-tag">{CURRENCY_MAP[props.city.country] || ''}</span>
             </h2>
           )}
           
@@ -185,7 +212,7 @@ function ClockCard({
       </div>
 
       <div className="clock-visual">
-        {isAnalog ? <AnalogClock date={localTime} /> : <div className="time-display">{timeString}</div>}
+        {props.isAnalog ? <AnalogClock date={localTime} /> : <div className="time-display">{timeString}</div>}
       </div>
       <div className="date-display">{dateString}</div>
     </div>
@@ -204,6 +231,13 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<CityConfig[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   useEffect(() => {
     const timer = setInterval(() => setRealTime(new Date()), 1000);
@@ -228,7 +262,7 @@ function App() {
       const response = await fetch(`https://api.openweathermap.org/geo/1.0/direct?q=${searchQuery}&limit=5&appid=${API_KEY}`);
       const data = await response.json();
       setSearchResults(data.map((item: any) => ({
-        id: `${item.lat}-${item.lon}`,
+        id: `${item.lat}-${item.lon}-${Date.now()}`,
         name: item.name,
         country: item.country,
         lat: item.lat,
@@ -237,12 +271,14 @@ function App() {
     } catch (error) { console.error(error); } finally { setIsSearching(false); }
   };
 
-  const moveCity = (index: number, direction: 'up' | 'down') => {
-    const newWatchlist = [...watchlist];
-    const targetIndex = direction === 'up' ? index - 1 : index + 1;
-    if (targetIndex >= 0 && targetIndex < newWatchlist.length) {
-      [newWatchlist[index], newWatchlist[targetIndex]] = [newWatchlist[targetIndex], newWatchlist[index]];
-      setWatchlist(newWatchlist);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setWatchlist((items) => {
+        const oldIndex = items.findIndex((i) => i.id === active.id);
+        const newIndex = items.findIndex((i) => i.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
     }
   };
 
@@ -253,56 +289,103 @@ function App() {
   return (
     <main className="app-container">
       <header className="app-header">
-        <div className="header-top">
-          <div className="brand">
-            <h1>World Clock</h1>
-            <div className="toggles">
-              <button className="format-toggle" onClick={() => setIs24Hour(!is24Hour)}>{is24Hour ? '12h' : '24h'}</button>
-              <button className="format-toggle" onClick={() => setIsAnalog(!isAnalog)}>{isAnalog ? 'Digital' : 'Analog'}</button>
+        <div className="header-glass">
+          <div className="header-top">
+            <div className="brand-modern">
+              <h1>World <span>Clock</span></h1>
+              <div className="toggles-modern">
+                <button 
+                  className={`toggle-modern-btn ${is24Hour ? 'active' : ''}`} 
+                  onClick={() => setIs24Hour(!is24Hour)}
+                >
+                  24h
+                </button>
+                <button 
+                  className={`toggle-modern-btn ${isAnalog ? 'active' : ''}`} 
+                  onClick={() => setIsAnalog(!isAnalog)}
+                >
+                  Analog
+                </button>
+              </div>
+            </div>
+            
+            <form className="search-modern" onSubmit={handleSearch}>
+              <div className="search-input-wrapper">
+                <input 
+                  type="text" 
+                  placeholder="Add a city..." 
+                  value={searchQuery} 
+                  onChange={(e) => setSearchQuery(e.target.value)} 
+                />
+                <button type="submit" className="search-submit">
+                  {isSearching ? '...' : '🔍'}
+                </button>
+              </div>
+              {searchResults.length > 0 && (
+                <div className="search-results-modern">
+                  {searchResults.map(r => (
+                    <div 
+                      key={r.id} 
+                      className="search-result-item" 
+                      onClick={() => { setWatchlist([...watchlist, r]); setSearchResults([]); setSearchQuery(''); }}
+                    >
+                      <span>{r.name}, {r.country}</span>
+                      <span className="add-plus">+</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </form>
+          </div>
+
+          <div className="scrubber-modern">
+            <div className="scrubber-info">
+              <span className="scrubber-label">Meeting Planner</span>
+              <span className="scrubber-value">
+                {offsetMinutes === 0 ? 'Live Time' : `${offsetMinutes > 0 ? '+' : ''}${Math.round(offsetMinutes/60)}h ${Math.abs(offsetMinutes%60)}m`}
+              </span>
+            </div>
+            <div className="scrubber-controls">
+              <input 
+                type="range" min="-1440" max="1440" step="15" 
+                className="modern-range"
+                value={offsetMinutes} onChange={(e) => setOffsetMinutes(parseInt(e.target.value))} 
+              />
+              <button className="modern-reset" onClick={() => setOffsetMinutes(0)}>
+                Reset
+              </button>
             </div>
           </div>
-          <form className="search-box" onSubmit={handleSearch}>
-            <input type="text" placeholder="Add city..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} />
-            <button type="submit">{isSearching ? '...' : '🔍'}</button>
-            {searchResults.length > 0 && (
-              <div className="search-results">
-                {searchResults.map(r => (
-                  <div key={r.id} className="search-item" onClick={() => { setWatchlist([...watchlist, r]); setSearchResults([]); setSearchQuery(''); }}>
-                    {r.name}, {r.country} <span>+</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </form>
-        </div>
-
-        <div className="time-scrubber">
-          <label>Meeting Planner: {offsetMinutes === 0 ? 'Live Time' : `${offsetMinutes > 0 ? '+' : ''}${Math.round(offsetMinutes/60)}h ${Math.abs(offsetMinutes%60)}m`}</label>
-          <input 
-            type="range" min="-1440" max="1440" step="15" 
-            value={offsetMinutes} onChange={(e) => setOffsetMinutes(parseInt(e.target.value))} 
-          />
-          <button className="reset-btn" onClick={() => setOffsetMinutes(0)}>Reset to Live</button>
         </div>
       </header>
 
-      <div className="clock-grid">
-        {watchlist.map((city, index) => (
-          <ClockCard 
-            key={city.id} 
-            city={city} 
-            is24Hour={is24Hour} 
-            isAnalog={isAnalog}
-            globalNow={globalNow} 
-            onRemove={() => setWatchlist(watchlist.filter(c => c.id !== city.id))}
-            onRename={(n) => updateNickname(city.id, n)}
-            onMoveUp={() => moveCity(index, 'up')}
-            onMoveDown={() => moveCity(index, 'down')}
-          />
-        ))}
-      </div>
+      <DndContext 
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="clock-grid">
+          <SortableContext 
+            items={watchlist.map(c => c.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {watchlist.map((city) => (
+              <SortableClockCard 
+                key={city.id} 
+                city={city} 
+                is24Hour={is24Hour} 
+                isAnalog={isAnalog}
+                globalNow={globalNow} 
+                onRemove={() => setWatchlist(watchlist.filter(c => c.id !== city.id))}
+                onRename={(n) => updateNickname(city.id, n)}
+              />
+            ))}
+          </SortableContext>
+        </div>
+      </DndContext>
     </main>
   );
 }
 
+export default App
 export default App
